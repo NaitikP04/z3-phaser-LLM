@@ -15,5 +15,18 @@
     "dotenv": "^16.4.5",
     "openai": "^4.73.1",
     "z3-solver": "^4.13.3"
-  }
+  },
+  "description": "",
+  "main": "main.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NaitikP04/z3-phaser-LLM.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/NaitikP04/z3-phaser-LLM/issues"
+  },
+  "homepage": "https://github.com/NaitikP04/z3-phaser-LLM#readme"
 }
