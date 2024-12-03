@@ -9,6 +9,7 @@ class Z3Scene extends Phaser.Scene {
         this.scaleFactor = 1.5;
         this.mapWidth = 40;
         this.mapHeight = 25;
+        
     }
 
     getMapData() {
@@ -173,7 +174,6 @@ class Z3Scene extends Phaser.Scene {
         return tileData;
     }
     
-    
     async generateConstraintsFromLLM(mapData, ruleDescription) {
         const prompt = `
         You are generating SMT-LIB constraints for a procedural tilemap system. The tilemap is in phaser, the tilesize is 16, the map width is 40, and the map height is 25. 
@@ -189,6 +189,11 @@ class Z3Scene extends Phaser.Scene {
         For the map data, the ground layer is on the bottom, the trees layer is in the middle, and the structures layer is on top. The "-1" values just mean that there is no tile at that position.
         this means that you can see the tile, if there is one, on the layer below.
         Use the tile types knowledge along with the layer to identify the structure and layout of the map, with EXACT and accurate coordinates for these structures and objects. 
+        
+        ### Output Formatting Instructions ###
+        Generate **only** valid SMT-LIB constraints. **Do not** include any additional text, explanations, comments, or code fences (e.g., no \`\`\`smtlib\`\`\`). 
+        The output must consist solely of raw SMT-LIB constraints formatted for direct parsing by Z3. Respond with no formatting. No  \`\`\` at the start or end.
+        
         Here is the current map data:
         
         Tile Types:
@@ -209,9 +214,9 @@ class Z3Scene extends Phaser.Scene {
         Output only valid SMT-LIB constraints. Do not include any additional text, explanations, acknowledgments, or comments. Ensure the constraints are correctly formatted for direct parsing by Z3.
         `;
             // Print the prompt to the console
-        console.log("Generated prompt for queryLLM:", prompt);
+        // console.log("Generated prompt for queryLLM:", prompt);
         // const constraints = await queryLLM(prompt);
-        // return constraints;
+        return prompt;
     }
 
     async solveSMTLibConstraints(smtlibString) {
@@ -282,6 +287,24 @@ class Z3Scene extends Phaser.Scene {
             return null;
         }
     }
+
+
+    // Function to query the LLM
+    async queryLLM(prompt) {
+       
+        const completion = await this.my.openai.chat.completions.create({
+            model: "o1-preview",
+            messages: [
+                {
+                    role: "user",
+                    content: prompt,
+                },
+            ],
+        });
+        
+        return completion.choices[0].message.content;
+    }
+    
     
     async create() {
         this.map = this.add.tilemap("three-farmhouses", this.tileSize, this.tileSize, this.mapHeight, this.mapWidth);
@@ -331,25 +354,25 @@ class Z3Scene extends Phaser.Scene {
             }).setOrigin(0.5);
         }
 
-        const smtlibString = `
-            (declare-const gen_x Int)
-            (declare-const gen_y Int)
-            (assert (and (>= gen_x 0) (<= gen_x 39)))
-            (assert (and (>= gen_y 0) (<= gen_y 24)))
-            (assert (or
-                (and (>= gen_x 34) (<= gen_x 36) (>= gen_y 3) (<= gen_y 5) (not (and (= gen_x 36) (= gen_y 3))))
-                (and (>= gen_x 22) (<= gen_x 28) (>= gen_y 18) (<= gen_y 19))
-            ))
-        `
-        const validPosition = await this.solveSMTLibConstraints(smtlibString);
-        if (validPosition) {
-            console.log("Valid Position:", validPosition);
+        // const smtlibString = `
+        //     (declare-const gen_x Int)
+        //     (declare-const gen_y Int)
+        //     (assert (and (>= gen_x 0) (<= gen_x 39)))
+        //     (assert (and (>= gen_y 0) (<= gen_y 24)))
+        //     (assert (or
+        //         (and (>= gen_x 34) (<= gen_x 36) (>= gen_y 3) (<= gen_y 5) (not (and (= gen_x 36) (= gen_y 3))))
+        //         (and (>= gen_x 22) (<= gen_x 28) (>= gen_y 18) (<= gen_y 19))
+        //     ))
+        // `
+        // const validPosition = await this.solveSMTLibConstraints(smtlibString);
+        // if (validPosition) {
+        //     console.log("Valid Position:", validPosition);
     
-            // Place the tile at the valid position
-            const tile = this.structuresLayer.putTileAt(58, validPosition.gen_x, validPosition.gen_y);
-        } else {
-            console.warn("No valid position for the wheelbarrow was found.");
-        }
+        //     // Place the tile at the valid position
+        //     const tile = this.structuresLayer.putTileAt(58, validPosition.gen_x, validPosition.gen_y);
+        // } else {
+        //     console.warn("No valid position for the wheelbarrow was found.");
+        // }
 
         // call getMapData() to get the map data
         const mapData = this.getMapData();
@@ -357,7 +380,29 @@ class Z3Scene extends Phaser.Scene {
         // call generateConstraintsFromLLM() to check query (debug)
         const ruleDescription = 
             `Wheelbarrow INSIDE the fence boundaries(not on the fence itself), there are 2 different fence boundaries on the map, either of these work. Make sure you analyse the layers to fully understand where the fences are on the map, the given data HAS EVERYTHING YOU NEED. Call the generated values gen_x and gen_y for now`;
-        const constraints = await this.generateConstraintsFromLLM(mapData, ruleDescription);
+        const prompt = await this.generateConstraintsFromLLM(mapData, ruleDescription);
+        // console.log("Generated prompt for queryLLM:", prompt);
+        // const constraints = await this.queryLLM(prompt);
+        console.log("Received SMT-LIB Constraints:", constraints);
+
+
+
+        // Check if constraints were returned
+        if (constraints) {
+            // Solve constraints
+            const validPosition = await this.solveSMTLibConstraints(constraints);
+
+            if (validPosition) {
+                console.log("Valid Position:", validPosition);
+
+                // Place the object at the valid position
+                this.structuresLayer.putTileAt(58, validPosition.gen_x, validPosition.gen_y);
+            } else {
+                console.warn("No valid position for the object was found.");
+            }
+        } else {
+            console.error("Failed to generate constraints from LLM.");
+        }
         
     }
 }

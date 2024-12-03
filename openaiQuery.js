@@ -1,28 +1,21 @@
 import OpenAI from "openai";
-import dotenv from "dotenv";
 
-dotenv.config();
+// Add your OpenAI API key here
 
 // Initialize OpenAI API
 const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
+    apiKey,
+    dangerouslyAllowBrowser: true
+});
+ 
+const completion = await openai.chat.completions.create({
+  model: "o1-preview",
+  messages: [
+    {
+      role: "user", 
+      content: "Write a bash script that takes a matrix represented as a string with format '[1,2],[3,4],[5,6]' and prints the transpose in the same format."
+    }
+  ]
 });
 
-// Function to query the LLM
-export async function queryLLM(prompt) {
-    try {
-        const response = await openai.chat.completions.create({
-            model: "gpt-4o", 
-            messages: [
-                { role: "system", content: "You are a helpful assistant." },
-                { role: "user", content: prompt },
-            ],
-            max_tokens: 3000,
-            temperature: 0,
-        });
-        return response.choices[0].message.content.trim();
-    } catch (error) {
-        console.error("Error querying OpenAI API:", error);
-        return null;
-    }
-}
+console.log(completion.choices[0].message.content);
