@@ -174,7 +174,7 @@ class Z3Scene extends Phaser.Scene {
         return tileData;
     }
     
-    async generateConstraintsFromLLM(mapData, ruleDescription) {
+    async generateConstraintsFromLLM(mapData, ruleDescription) {    
         const prompt = `
         You are generating SMT-LIB constraints for a procedural tilemap system. The tilemap is in phaser, the tilesize is 16, the map width is 40, and the map height is 25. 
         Generate constraints for the following map data, the constraints should lead to a valid solution for the given rules.
@@ -220,25 +220,24 @@ class Z3Scene extends Phaser.Scene {
     }
 
     async solveSMTLibConstraints(smtlibString) {
-        const { Solver, Int, And, Not } = new this.my.Context("main");
-        const solver = new Solver();
+        const { Solver, Int, And, Not } = new this.my.Context("main"); // Use the Z3 solver context from the main scene
+        const solver = new Solver(); // Create a new solver instance
     
         try {
-            solver.fromString(smtlibString);
-            //console.log("Parsed Constraints:", solver.toString());
+            solver.fromString(smtlibString); // Load the constraints from the SMT-LIB string
         } catch (error) {
-            console.error("Failed to parse constraints:", error);
+            console.error("Failed to parse constraints:", error); 
             return null;
         }
 
-        const solutions = [];
+        const solutions = []; // Store the valid solutions
 
         while (true) {
-            const result = await solver.check();
+            const result = await solver.check(); // Check if there is a solution
     
-            if (result === "sat") {
-                const model = solver.model();
-                const position = {};
+            if (result === "sat") { // If a solution exists
+                const model = solver.model(); // Get the model
+                const position = {}; // Store the position
     
                 try {
                     // Retrieve the values of 'gen_x' and 'gen_y'
@@ -364,28 +363,25 @@ class Z3Scene extends Phaser.Scene {
         //         (and (>= gen_x 22) (<= gen_x 28) (>= gen_y 18) (<= gen_y 19))
         //     ))
         // `
-        // const validPosition = await this.solveSMTLibConstraints(smtlibString);
-        // if (validPosition) {
-        //     console.log("Valid Position:", validPosition);
-    
-        //     // Place the tile at the valid position
-        //     const tile = this.structuresLayer.putTileAt(58, validPosition.gen_x, validPosition.gen_y);
-        // } else {
-        //     console.warn("No valid position for the wheelbarrow was found.");
-        // }
 
+        // const constraints = '(declare-const gen_x Int) (declare-const gen_y Int) (assert (and (>= gen_x 0) (<= gen_x 39))) (assert (and (>= gen_y 0) (<= gen_y 24))) (define-fun is_tree ((x Int) (y Int)) Bool (or (and (= x 12) (= y 2)) (and (= x 13) (= y 2)) (and (= x 14) (= y 2)) (and (= x 16) (= y 2)) (and (= x 18) (= y 2)) (and (= x 20) (= y 2)) (and (= x 21) (= y 2)) (and (= x 11) (= y 3)) (and (= x 12) (= y 3)) (and (= x 13) (= y 3)) (and (= x 14) (= y 3)) (and (= x 16) (= y 3)) (and (= x 18) (= y 3)) (and (= x 19) (= y 3)) (and (= x 20) (= y 3)) (and (= x 21) (= y 3)) (and (= x 10) (= y 4)) (and (= x 13) (= y 4)) (and (= x 14) (= y 4)) (and (= x 16) (= y 4)) (and (= x 19) (= y 4)) (and (= x 20) (= y 4)) (and (= x 21) (= y 4)) (and (= x 3) (= y 5)) (and (= x 4) (= y 5)) (and (= x 6) (= y 5)) (and (= x 7) (= y 5)) (and (= x 8) (= y 5)) (and (= x 9) (= y 5)) (and (= x 10) (= y 5)) (and (= x 11) (= y 5)) (and (= x 13) (= y 5)) (and (= x 14) (= y 5)) (and (= x 15) (= y 5)) (and (= x 16) (= y 5)) (and (= x 17) (= y 5)) (and (= x 18) (= y 5)) (and (= x 22) (= y 5)) ) ) (define-fun is_occupied ((x Int) (y Int)) Bool (or (is_tree x y) (and (or (and (>= x 3) (<= x 8)) (and (>= x 27) (<= x 38)) ) (and (>= y 2) (<= y 4)) ) ) ) (assert (not (is_occupied gen_x gen_y))) (assert (or (and (< gen_x 39) (is_tree (+ gen_x 1) gen_y)) (and (> gen_x 0) (is_tree (- gen_x 1) gen_y)) (and (< gen_y 24) (is_tree gen_x (+ gen_y 1))) (and (> gen_y 0) (is_tree gen_x (- gen_y 1))) ))'
         // call getMapData() to get the map data
         const mapData = this.getMapData();
 
         // call generateConstraintsFromLLM() to check query (debug)
         const ruleDescription = 
             `Wheelbarrow INSIDE the fence boundaries(not on the fence itself), there are 2 different fence boundaries on the map, either of these work. Make sure you analyse the layers to fully understand where the fences are on the map, the given data HAS EVERYTHING YOU NEED. Call the generated values gen_x and gen_y for now`;
+        
+        // const beehiveRuleDescription = 
+        //     "Beehive adjacent to any tree, shouldn't be on any other object, or on the tree itself. Call the generated values gen_x and gen_y.";
+        
         const prompt = await this.generateConstraintsFromLLM(mapData, ruleDescription);
-        // console.log("Generated prompt for queryLLM:", prompt);
-        // const constraints = await this.queryLLM(prompt);
+        
+        
+        // console.log("Generated prompt for queryLLM:", prompt); //uncomment to show the prompt
+        
+        // const constraints = await this.queryLLM(prompt); //uncomment to query LLM
         console.log("Received SMT-LIB Constraints:", constraints);
-
-
 
         // Check if constraints were returned
         if (constraints) {
@@ -396,14 +392,13 @@ class Z3Scene extends Phaser.Scene {
                 console.log("Valid Position:", validPosition);
 
                 // Place the object at the valid position
-                this.structuresLayer.putTileAt(58, validPosition.gen_x, validPosition.gen_y);
+                this.structuresLayer.putTileAt(58, validPosition.gen_x, validPosition.gen_y); //58 for wheelbarrow, 95 for beehive
             } else {
                 console.warn("No valid position for the object was found.");
             }
         } else {
             console.error("Failed to generate constraints from LLM.");
         }
-        
     }
 }
 
