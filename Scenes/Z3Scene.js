@@ -12,7 +12,7 @@ class Z3Scene extends Phaser.Scene {
         
     }
 
-    getMapData() {
+    getMapData(printAscii = false, printNormal = false) {
         // Convert a flat array to a 2D array
         function reshapeTo2DArray(flatArray, width, height) {
             const reshaped = [];
@@ -30,281 +30,485 @@ class Z3Scene extends Phaser.Scene {
         const trees2D = reshapeTo2DArray(treesLayer, this.mapWidth, this.mapHeight);
         const structures2D = reshapeTo2DArray(structuresLayer, this.mapWidth, this.mapHeight);
     
-        const tileData = {
-            tileTypes: {
-                1: "normal ground",    // Ground but not walkable
-                2: "normal ground",    // Ground but not walkable
-                3: "normal ground",    // Ground but not walkable
-                4: "tree",             // Tree
-                5: "tree",             // Tree
-                6: "tree",             // Tree
-                7: "tree",             // Tree
-                8: "tree",             // Tree
-                9: "tree",             // Tree
-                10: "tree",            // Tree
-                11: "tree",            // Tree
-                12: "tree",            // Tree
-                13: "path",            // Walkable ground
-                14: "path",            // Walkable ground
-                15: "path",            // Walkable ground
-                16: "tree",            // Tree
-                17: "tree",            // Tree
-                18: "tree",            // Tree
-                19: "tree",            // Tree
-                20: "tree",            // Tree
-                21: "tree",            // Tree
-                22: "tree",            // Tree
-                23: "tree",            // Tree
-                24: "tree",            // Tree
-                25: "path",            // Walkable ground
-                26: "path",            // Walkable ground
-                27: "path",            // Walkable ground
-                28: "tree",            // Tree
-                29: "tree",            // Tree
-                30: "tree",            // Tree
-                31: "tree",            // Tree
-                32: "tree",            // Tree
-                33: "tree",            // Tree
-                34: "tree",            // Tree
-                35: "tree",            // Tree
-                36: "tree",            // Tree
-                37: "path",            // Walkable ground
-                38: "path",            // Walkable ground
-                39: "path",            // Walkable ground
-                40: "path",            // Walkable ground
-                41: "path",            // Walkable ground
-                42: "path",            // Walkable ground
-                43: "path",            // Walkable ground
-                44: "path",            // Walkable ground
-                45: "fence",           // Fence
-                46: "fence",           // Fence
-                47: "fence",           // Fence
-                48: "fence",           // Fence
-                49: "roof",            // Roof
-                50: "roof",            // Roof
-                51: "roof",            // Roof
-                52: "roof",            // Roof
-                53: "roof",            // Roof
-                54: "roof",            // Roof
-                55: "roof",            // Roof
-                56: "roof",            // Roof
-                57: "fence",           // Fence
-                58: "wheelbarrow",     // Wheelbarrow
-                59: "fence",           // Fence
-                60: "fence",           // Fence
-                61: "roof",            // Roof
-                62: "roof",            // Roof
-                63: "roof",            // Roof
-                64: "roof",            // Roof
-                65: "roof",            // Roof
-                66: "roof",            // Roof
-                67: "roof",            // Roof
-                68: "roof",            // Roof
-                69: "fence",           // Fence
-                70: "fence",           // Fence
-                71: "fence",           // Fence
-                72: "fence",           // Fence
-                73: "wall",            // Wall
-                74: "wall",            // Wall
-                75: "door",            // Door
-                76: "wall",            // Wall
-                77: "wall",            // Wall
-                78: "wall",            // Wall
-                79: "door",            // Door
-                80: "wall",            // Wall
-                81: "fence",           // Fence
-                82: "fence",           // Fence
-                83: "fence",           // Fence
-                84: "sign",            // Sign
-                85: "wall",            // Wall
-                86: "door",            // Door
-                87: "door",            // Door
-                88: "door",            // Door
-                89: "wall",            // Wall
-                90: "door",            // Door
-                91: "door",            // Door
-                92: "door",            // Door
-                93: "object",          // Generic object
-                94: "object",          // Generic object
-                95: "object",          // Generic object
-                96: "object",          // Generic object
-                97: "roof",            // Roof
-                98: "roof",            // Roof
-                99: "roof",            // Roof
-                100: "wall",           // Wall
-                101: "wall",           // Wall
-                102: "wall",           // Wall
-                103: "wall",           // Wall
-                104: "object",         // Generic object
-                105: "object",         // Generic object
-                106: "object",         // Generic object
-                107: "object",         // Generic object
-                108: "object",         // Generic object
-                109: "roof",           // Roof
-                110: "roof",           // Roof
-                111: "roof",           // Roof
-                112: "wall",           // Wall
-                113: "wall",           // Wall
-                114: "wall",           // Wall
-                115: "wall",           // Wall
-                116: "object",         // Generic object
-                117: "object",         // Generic object
-                118: "object",         // Generic object
-                119: "object",         // Generic object
-                120: "object",         // Generic object
-                121: "roof",           // Roof
-                122: "roof",           // Roof
-                123: "roof",           // Roof
-                124: "door",           // Door
-                125: "door",           // Door
-                126: "wall",           // Wall
-                127: "wall",           // Wall
-                128: "object",         // Generic object
-                129: "object",         // Generic object
-                130: "object",         // Generic object
-                131: "object",         // Generic object
-                132: "object"          // Generic object
-            },
-            layers: {
-                ground: ground2D,
-                trees: trees2D,
-                structures: structures2D
+        const tileTypes = {
+            1: "normal ground",
+            2: "normal ground",
+            3: "normal ground with flowers",
+            4: "big yellow tree top",
+            5: "big green tree top",
+            6: "green bush",
+            7: "tree bunch varition 1 green top left",
+            8: "tree bunch varition 2 green top",
+            9: "tree bunch varition 1 green top right",
+            10: "tree bunch varition 1 yellow top left",
+            11: "tree bunch varition 2 yellow top",
+            12: "tree bunch varition 1 yellow top right",
+            13: "path",
+            14: "path",
+            15: "path",
+            16: "big yellow tree bottom",
+            17: "big green tree top",
+            18: "small plant",
+            19: "tree bunch varition 2 green left",
+            20: "tree bunch varition 2 green middle",
+            21: "tree bunch varition 2 green right",
+            22: "tree bunch varition 2 yellow left",
+            23: "tree bunch varition 2 yellow middle",
+            24: "tree bunch varition 2 yellow right",
+            25: "path",
+            26: "path",
+            27: "path",
+            28: "small yellow tree whole",
+            29: "small green tree whole",
+            30: "mushroom",
+            31: "tree bunch varition 1 green bottom left",
+            32: "tree bunch varition 2 green bottom",
+            33: "tree bunch varition 1 green bottom right",
+            34: "tree bunch varition 1 yellow bottom left",
+            35: "tree bunch varition 2 yellow bottom",
+            36: "tree bunch varition 1 yellow bottom right",
+            37: "path",
+            38: "path",
+            39: "path",
+            40: "path",
+            41: "path",
+            42: "path",
+            43: "path",
+            44: "path",
+            45: "fence",
+            46: "fence",
+            47: "fence",
+            48: "fence",
+            49: "roof",
+            50: "roof",
+            51: "roof",
+            52: "chimney",
+            53: "roof",
+            54: "roof",
+            55: "roof",
+            56: "chimney",
+            57: "fence",
+            58: "wheelbarrow",
+            59: "fence",
+            60: "fence",
+            61: "roof",
+            62: "roof",
+            63: "roof",
+            64: "roof",
+            65: "roof",
+            66: "roof",
+            67: "roof",
+            68: "roof",
+            69: "fence",
+            70: "fence",
+            71: "fence",
+            72: "fence",
+            73: "wall",
+            74: "wall",
+            75: "door",
+            76: "wall",
+            77: "wall",
+            78: "wall",
+            79: "door",
+            80: "wall",
+            81: "fence",
+            82: "fence",
+            83: "fence",
+            84: "sign",
+            85: "wall",
+            86: "door",
+            87: "door",
+            88: "door",
+            89: "wall",
+            90: "door",
+            91: "door",
+            92: "door",
+            93: "well top",
+            94: "coin",
+            95: "beehive",
+            96: "target object",
+            97: "roof",
+            98: "roof",
+            99: "roof",
+            100: "wall",
+            101: "wall",
+            102: "wall",
+            103: "wall",
+            104: "object",
+            105: "well bottom",
+            106: "bomb",
+            107: "log",
+            108: "empty bag",
+            109: "roof",
+            110: "roof",
+            111: "roof",
+            112: "wall",
+            113: "wall",
+            114: "wall",
+            115: "wall",
+            116: "pickaxe",
+            117: "rake",
+            118: "key",
+            119: "bow",
+            120: "arrow",
+            121: "roof",
+            122: "roof",
+            123: "roof",
+            124: "door",
+            125: "door",
+            126: "wall",
+            127: "wall",
+            128: "axe",
+            129: "shovel",
+            130: "scythe",
+            131: "empty bucket",
+            132: "water bucket"
+        };
+    
+        const tileSymbols = {
+            // Ground
+            "normal ground": ".",
+            "normal ground with flowers": ":",
+            
+            // Trees and plants
+            "big yellow tree top": "Y",
+            "big yellow tree bottom": "y",
+            "big green tree top": "G",   // both occurrences of "big green tree top"
+            "small plant": "'",
+            "green bush": "b",
+            "small yellow tree whole": "y",
+            "small green tree whole": "f",
+            "mushroom": "m",
+        
+            // Tree bunch variations (all condensed to 't')
+            "tree bunch varition 1 green top left": "t",
+            "tree bunch varition 2 green top": "t",
+            "tree bunch varition 1 green top right": "t",
+            "tree bunch varition 1 yellow top left": "t",
+            "tree bunch varition 2 yellow top": "t",
+            "tree bunch varition 1 yellow top right": "t",
+            "tree bunch varition 2 green left": "t",
+            "tree bunch varition 2 green middle": "t",
+            "tree bunch varition 2 green right": "t",
+            "tree bunch varition 2 yellow left": "t",
+            "tree bunch varition 2 yellow middle": "t",
+            "tree bunch varition 2 yellow right": "t",
+            "tree bunch varition 1 green bottom left": "t",
+            "tree bunch varition 2 green bottom": "t",
+            "tree bunch varition 1 green bottom right": "t",
+            "tree bunch varition 1 yellow bottom left": "t",
+            "tree bunch varition 2 yellow bottom": "t",
+            "tree bunch varition 1 yellow bottom right": "t",
+        
+            // Paths
+            "path": "P",
+        
+            // Fences
+            "fence": "F",
+        
+            // Roofs and chimneys
+            "roof": "^",
+            "chimney": "C",
+        
+            // Walls and doors
+            "wall": "#",
+            "door": "D",
+        
+            // Objects and items
+            "wheelbarrow": "W",
+            "sign": "S",
+            "well top": "T",
+            "coin": "$",
+            "beehive": "B",
+            "target object": "X",
+            "well bottom": "w",
+            "bomb": "*",
+            "log": "L",
+            "empty bag": "E",
+            "pickaxe": "p",
+            "rake": "r",
+            "key": "k",
+            "bow": ">",
+            "arrow": "-",
+            "axe": "x",
+            "shovel": "v",
+            "scythe": "h",
+            "empty bucket": "U",
+            "water bucket": "u",
+            "object": "O",
+        
+            // Unknown or unhandled
+            "unknown": "?"
+        };        
+    
+        // Combine layers into a single 2D array and map tile IDs to types
+        const finalMap = [];
+        for (let y = 0; y < this.mapHeight; y++) {
+            const row = [];
+            for (let x = 0; x < this.mapWidth; x++) {
+                // Priority: structures > trees > ground
+                const structureTile = structures2D[y][x];
+                const treeTile = trees2D[y][x];
+                const groundTile = ground2D[y][x];
+    
+                let tileID = -1;
+                if (structureTile !== -1) {
+                    tileID = structureTile; // Use structure tile if present
+                } else if (treeTile !== -1) {
+                    tileID = treeTile; // Use tree tile if present
+                } else {
+                    tileID = groundTile; // Default to ground tile
+                }
+    
+                const tileType = tileTypes[tileID] || "unknown";
+                row.push(tileType);
             }
-        };  
-        return tileData;
+            finalMap.push(row);
+        }
+    
+        // Create ASCII representation
+        const asciiRows = finalMap.map(row => row.map(tileType => tileSymbols[tileType] || '?').join(''));
+    
+        // Print the chosen format(s)
+        if (printNormal) {
+            console.log("Normal (Descriptive) Map Data:");
+            console.log(finalMap);
+        }
+    
+        if (printAscii) {
+            console.log("ASCII Visualization:");
+            asciiRows.forEach(line => console.log(line));
+        }
+    
+        return { tileSymbols, tileTypes, finalMap, asciiRows };
     }
+    
     
     async generateConstraintsFromLLM(mapData, ruleDescription) {    
         const prompt = `
-        You are generating SMT-LIB constraints for a procedural tilemap system. The tilemap is in phaser, the tilesize is 16, the map width is 40, and the map height is 25. 
-        Generate constraints for the following map data, the constraints should lead to a valid solution for the given rules.
-        This solution will most likely be used to place objects on the map. Therefore the contraints should consider the coordinates of the tiles and generate solutions for where the new objects could be placed.
-        Analyse every layer and learn where the different structures are placed, and what these structures are, this step is extremely important to generate the correct constraints.
-        You will get house and fence data from the structures layer, tree and plant data from the trees layer, and ground, and where the walkable paths data from the ground layer.
-        All these layers should be considered together based on what the rules are. Try to avoid complicated constraints, but make sure they are correct. 
-        Do not make up any functions or variables, based on your assumptions, only use the data provided. It is enough to generate accurate constraints.
-        It's crucial you read the map data correctly. The data is in a 2D array format, where each element in the array is a tile ID. The tile ID corresponds to a specific tile type.
-        the first element in the first array is the top left corner of the map. The first element in the second array in the row below is the tile to the right of the top left corner, and so on.
-        the last element in the last array is the bottom right corner of the map.
-        For the map data, the ground layer is on the bottom, the trees layer is in the middle, and the structures layer is on top. The "-1" values just mean that there is no tile at that position.
-        this means that you can see the tile, if there is one, on the layer below.
-        Use the tile types knowledge along with the layer to identify the structure and layout of the map, with EXACT and accurate coordinates for these structures and objects. 
-        
-        ### Output Formatting Instructions ###
-        Generate **only** valid SMT-LIB constraints. **Do not** include any additional text, explanations, comments, or code fences (e.g., no \`\`\`smtlib\`\`\`). 
-        The output must consist solely of raw SMT-LIB constraints formatted for direct parsing by Z3. Respond with no formatting. No  \`\`\` at the start or end.
-        
-        Here is the current map data:
-        
-        Tile Types:
-        ${JSON.stringify(mapData.tileTypes)}
-        
-        Ground Layer (2D array of tile IDs):
-        ${JSON.stringify(mapData.layers.ground)}
+            Below is an ASCII representation of a procedural tilemap. Each symbol represents a specific type of tile or object. The most important thing is their position on the map. 
+            The map is a 2D grid where each cell represents a tile or object. The following symbols are used to represent different types of tiles and objects:
 
-        Trees Layer (2D array of tile IDs):
-        ${JSON.stringify(mapData.layers.trees)}
+            Legend:
+            "normal ground": ".",
+            "normal ground with flowers": ":",
+            
+            // Trees and plants
+            "big yellow tree top": "Y",
+            "big yellow tree bottom": "y",
+            "big green tree top": "G",   // both occurrences of "big green tree top"
+            "small plant": "'",
+            "green bush": "b",
+            "small yellow tree whole": "y",
+            "small green tree whole": "f",
+            "mushroom": "m",
         
-        Structures Layer (2D array of tile IDs):
-        ${JSON.stringify(mapData.layers.structures)}
+            // Tree bunch variations (all condensed to 't')
+            "tree bunch varition 1 green top left": "t",
+            "tree bunch varition 2 green top": "t",
+            "tree bunch varition 1 green top right": "t",
+            "tree bunch varition 1 yellow top left": "t",
+            "tree bunch varition 2 yellow top": "t",
+            "tree bunch varition 1 yellow top right": "t",
+            "tree bunch varition 2 green left": "t",
+            "tree bunch varition 2 green middle": "t",
+            "tree bunch varition 2 green right": "t",
+            "tree bunch varition 2 yellow left": "t",
+            "tree bunch varition 2 yellow middle": "t",
+            "tree bunch varition 2 yellow right": "t",
+            "tree bunch varition 1 green bottom left": "t",
+            "tree bunch varition 2 green bottom": "t",
+            "tree bunch varition 1 green bottom right": "t",
+            "tree bunch varition 1 yellow bottom left": "t",
+            "tree bunch varition 2 yellow bottom": "t",
+            "tree bunch varition 1 yellow bottom right": "t",
         
-        Generate SMT-LIB constraints that satisfy the following rules:
-        ${ruleDescription} 
+            // Paths
+            "path": "P",
         
-        Output only valid SMT-LIB constraints. Do not include any additional text, explanations, acknowledgments, or comments. Ensure the constraints are correctly formatted for direct parsing by Z3.
+            // Fences
+            "fence": "F",
+        
+            // Roofs and chimneys
+            "roof": "^",
+            "chimney": "C",
+        
+            // Walls and doors
+            "wall": "#",
+            "door": "D",
+        
+            // Objects and items
+            "wheelbarrow": "W",
+            "sign": "S",
+            "well top": "T",
+            "coin": "$",
+            "beehive": "B",
+            "target object": "X",
+            "well bottom": "w",
+            "bomb": "*",
+            "log": "L",
+            "empty bag": "E",
+            "pickaxe": "p",
+            "rake": "r",
+            "key": "k",
+            "bow": ">",
+            "arrow": "-",
+            "axe": "x",
+            "shovel": "v",
+            "scythe": "h",
+            "empty bucket": "U",
+            "water bucket": "u",
+            "object": "O",
+        
+            // Unknown or unhandled
+            "unknown": "?"
+
+            Current Map:
+            ${mapData.asciiRows.join("\n")}
+
+            Task:
+            ${ruleDescription}
+
+            Output:
+            Return only the modified ASCII map. Ensure the format matches the original map with any changes you implemented (same width, height, and structure). Do not include explanations or additional text.
+
         `;
-            // Print the prompt to the console
+        // Print the prompt to the console
         // console.log("Generated prompt for queryLLM:", prompt);
         // const constraints = await queryLLM(prompt);
         return prompt;
     }
 
-    async solveSMTLibConstraints(smtlibString) {
-        const { Solver, Int, And, Not } = new this.my.Context("main"); // Use the Z3 solver context from the main scene
-        const solver = new Solver(); // Create a new solver instance
-    
-        try {
-            solver.fromString(smtlibString); // Load the constraints from the SMT-LIB string
-        } catch (error) {
-            console.error("Failed to parse constraints:", error); 
-            return null;
-        }
-
-        const solutions = []; // Store the valid solutions
-
-        while (true) {
-            const result = await solver.check(); // Check if there is a solution
-    
-            if (result === "sat") { // If a solution exists
-                const model = solver.model(); // Get the model
-                const position = {}; // Store the position
-    
-                try {
-                    // Retrieve the values of 'gen_x' and 'gen_y'
-                    const xVar = Int.const("gen_x");
-                    const yVar = Int.const("gen_y");
-    
-                    const xValue = model.eval(xVar);
-                    const yValue = model.eval(yVar);
-    
-                    if (xValue && yValue) {
-                        position.gen_x = parseInt(xValue.toString());
-                        position.gen_y = parseInt(yValue.toString());
-                        solutions.push(position);
-    
-                        // Exclude the current solution in the next iteration
-                        const excludeCurrentSolution = Not(And(
-                            xVar.eq(Int.val(position.gen_x)),
-                            yVar.eq(Int.val(position.gen_y))
-                        ));
-                        solver.add(excludeCurrentSolution);
-                    } else {
-                        console.error("Could not evaluate variables.");
-                        break;
-                    }
-                } catch (error) {
-                    console.error("Error evaluating variables:", error);
-                    break;
-                }
-            } else if (result === "unsat") {
-                // No more solutions available
-                break;
-            } else {
-                console.warn("Solver returned UNKNOWN.");
-                break;
-            }
-        }
-
-        if (solutions.length > 0) {
-            // Pick a random solution from the list
-            const randomIndex = Math.floor(Math.random() * solutions.length);
-            const randomPosition = solutions[randomIndex];
-            // console.log("Random Valid Position Found:", randomPosition);
-            return randomPosition;
-        } else {
-            console.warn("No valid positions found: Constraints are unsatisfiable.");
-            return null;
-        }
-    }
-
-
     // Function to query the LLM
     async queryLLM(prompt) {
-       
-        const completion = await this.my.openai.chat.completions.create({
-            model: "o1-preview",
-            messages: [
-                {
-                    role: "user",
-                    content: prompt,
-                },
-            ],
-        });
         
-        return completion.choices[0].message.content;
+        const generationConfig = {
+            temperature: 0.5,
+            topP: 0.95,
+            topK: 40,
+            maxOutputTokens: 8192,
+            responseMimeType: "text/plain",
+        };
+
+        const chatSession = this.my.model.startChat({
+            generationConfig,
+            history: [
+            ],
+          });
+        
+          const result = await chatSession.sendMessage(prompt);
+          return result.response.text();
     }
     
-    
+    compareMaps(currentMap, newMap) {
+        const changes = [];
+        for (let y = 0; y < this.mapHeight; y++) {
+            for (let x = 0; x < this.mapWidth; x++) {
+                const currentTile = currentMap[y][x];
+                const newTile = newMap[y][x];
+                if (currentTile !== newTile) {
+                    changes.push({ x, y, newTile });
+                }
+            }
+        }
+        return changes;
+    }
+
+    /**
+     * Helper: Invert tileSymbols to map from ASCII char to tileType.
+     */
+    invertTileSymbols(tileSymbols) {
+        const asciiToType = {};
+        for (const [type, ascii] of Object.entries(tileSymbols)) {
+            asciiToType[ascii] = type;
+        }
+        return asciiToType;
+    }
+
+    /**
+     * Helper: Create a mapping from tileType to a list of tileIDs that represent it.
+     */
+    createTypeToTileIDs(tileTypes) {
+        const typeToIDs = {};
+        for (const [id, type] of Object.entries(tileTypes)) {
+            if (!typeToIDs[type]) {
+                typeToIDs[type] = [];
+            }
+            typeToIDs[type].push(parseInt(id));
+        }
+        return typeToIDs;
+    }
+
+    /**
+     * Decide which layer to place the tile on, based on the tileType.
+     * This logic is heuristic; feel free to adjust as needed.
+     */
+    chooseLayerForTile(tileType) {
+        // Examples:
+        // Structures: walls, doors, fences, roofs, chimneys, signs, objects
+        // Trees: tree, bush, mushroom, plant-related
+        // Otherwise: ground
+
+        const structuresKeywords = ["wall", "door", "roof", "chimney", "sign", "fence", "object", "well", "bomb", "log", "coin", "beehive", "target", "bucket", "bow", "arrow", "pickaxe", "rake", "axe", "scythe", "shovel"];
+        const treesKeywords = ["tree", "bush", "mushroom", "plant", "flower"];
+
+        const lowerType = tileType.toLowerCase();
+
+        if (structuresKeywords.some(kw => lowerType.includes(kw))) {
+            return this.structuresLayer;
+        } else if (treesKeywords.some(kw => lowerType.includes(kw))) {
+            return this.treesLayer;
+        } else {
+            // default to ground layer
+            return this.groundLayer;
+        }
+    }
+
+    /**
+     * Apply map changes to the tilemap.
+     * @param {Array} changes - array of {x, y, newTile} objects, where newTile is the ASCII char.
+     * @param {Object} tileSymbols - mapping of tileType -> ASCII
+     */
+    applyMapChanges(changes, tileSymbols) {
+        // Get the current tile data
+        const { tileTypes, finalMap } = this.getMapData(false, false);
+
+        // Invert tileSymbols to get ASCII -> tileType
+        const asciiToType = this.invertTileSymbols(tileSymbols);
+
+        // Create a reverse lookup from tileType to tileIDs
+        const typeToIDs = this.createTypeToTileIDs(tileTypes);
+
+        for (const change of changes) {
+            const { x, y, newTile } = change;
+
+            // Get tileType from ASCII
+            const tileType = asciiToType[newTile] || "unknown";
+
+            if (tileType === "unknown") {
+                console.warn(`Unknown tile type for ASCII char "${newTile}" at (${x}, ${y}). Skipping.`);
+                continue;
+            }
+
+            // Find a suitable tileID for this tileType
+            const possibleIDs = typeToIDs[tileType];
+            if (!possibleIDs || possibleIDs.length === 0) {
+                console.warn(`No tileID found for tileType "${tileType}" at (${x}, ${y}). Skipping.`);
+                continue;
+            }
+
+            // For simplicity, pick the first available tileID
+            const chosenTileID = possibleIDs[0];
+
+            // Choose which layer to place the tile on
+            const chosenLayer = this.chooseLayerForTile(tileType);
+
+            // Set the tile at the position
+            chosenLayer.putTileAt(chosenTileID, x, y);
+        }
+    }
+
+
     async create() {
         this.map = this.add.tilemap("three-farmhouses", this.tileSize, this.tileSize, this.mapHeight, this.mapWidth);
 
@@ -353,52 +557,31 @@ class Z3Scene extends Phaser.Scene {
             }).setOrigin(0.5);
         }
 
-        // const smtlibString = `
-        //     (declare-const gen_x Int)
-        //     (declare-const gen_y Int)
-        //     (assert (and (>= gen_x 0) (<= gen_x 39)))
-        //     (assert (and (>= gen_y 0) (<= gen_y 24)))
-        //     (assert (or
-        //         (and (>= gen_x 34) (<= gen_x 36) (>= gen_y 3) (<= gen_y 5) (not (and (= gen_x 36) (= gen_y 3))))
-        //         (and (>= gen_x 22) (<= gen_x 28) (>= gen_y 18) (<= gen_y 19))
-        //     ))
-        // `
-
-        // const constraints = '(declare-const gen_x Int) (declare-const gen_y Int) (assert (and (>= gen_x 0) (<= gen_x 39))) (assert (and (>= gen_y 0) (<= gen_y 24))) (define-fun is_tree ((x Int) (y Int)) Bool (or (and (= x 12) (= y 2)) (and (= x 13) (= y 2)) (and (= x 14) (= y 2)) (and (= x 16) (= y 2)) (and (= x 18) (= y 2)) (and (= x 20) (= y 2)) (and (= x 21) (= y 2)) (and (= x 11) (= y 3)) (and (= x 12) (= y 3)) (and (= x 13) (= y 3)) (and (= x 14) (= y 3)) (and (= x 16) (= y 3)) (and (= x 18) (= y 3)) (and (= x 19) (= y 3)) (and (= x 20) (= y 3)) (and (= x 21) (= y 3)) (and (= x 10) (= y 4)) (and (= x 13) (= y 4)) (and (= x 14) (= y 4)) (and (= x 16) (= y 4)) (and (= x 19) (= y 4)) (and (= x 20) (= y 4)) (and (= x 21) (= y 4)) (and (= x 3) (= y 5)) (and (= x 4) (= y 5)) (and (= x 6) (= y 5)) (and (= x 7) (= y 5)) (and (= x 8) (= y 5)) (and (= x 9) (= y 5)) (and (= x 10) (= y 5)) (and (= x 11) (= y 5)) (and (= x 13) (= y 5)) (and (= x 14) (= y 5)) (and (= x 15) (= y 5)) (and (= x 16) (= y 5)) (and (= x 17) (= y 5)) (and (= x 18) (= y 5)) (and (= x 22) (= y 5)) ) ) (define-fun is_occupied ((x Int) (y Int)) Bool (or (is_tree x y) (and (or (and (>= x 3) (<= x 8)) (and (>= x 27) (<= x 38)) ) (and (>= y 2) (<= y 4)) ) ) ) (assert (not (is_occupied gen_x gen_y))) (assert (or (and (< gen_x 39) (is_tree (+ gen_x 1) gen_y)) (and (> gen_x 0) (is_tree (- gen_x 1) gen_y)) (and (< gen_y 24) (is_tree gen_x (+ gen_y 1))) (and (> gen_y 0) (is_tree gen_x (- gen_y 1))) ))'
         // call getMapData() to get the map data
-        const mapData = this.getMapData();
+        const mapData = this.getMapData(false, false);
 
         // call generateConstraintsFromLLM() to check query (debug)
         const ruleDescription = 
-            `Wheelbarrow INSIDE the fence boundaries(not on the fence itself), there are 2 different fence boundaries on the map, either of these work. Make sure you analyse the layers to fully understand where the fences are on the map, the given data HAS EVERYTHING YOU NEED. Call the generated values gen_x and gen_y for now`;
-        
-        // const beehiveRuleDescription = 
-        //     "Beehive adjacent to any tree, shouldn't be on any other object, or on the tree itself. Call the generated values gen_x and gen_y.";
+            `Add 1 more chimney on the house to the top right. Do not modify any other part of the map that doesnt need to be modified, you can replace tiles.`;
         
         const prompt = await this.generateConstraintsFromLLM(mapData, ruleDescription);
         
+        console.log("Generated prompt for queryLLM:", prompt); //uncomment to show the prompt
         
-        // console.log("Generated prompt for queryLLM:", prompt); //uncomment to show the prompt
+        const { asciiRows: currentAsciiMap, tileSymbols } = this.getMapData(false, false);
+
+        const newAsciiMapString = await this.queryLLM(prompt);
+        const newAsciiMap = newAsciiMapString.split("\n").map(row => row.split(""));
+
+        const changes = this.compareMaps(currentAsciiMap, newAsciiMap);
+        console.log("Map Changes:", changes);
+
+        //print the ascii version of the new map
+        console.log("New Map:");
+        newAsciiMap.forEach(line => console.log(line.join("")));
         
-        // const constraints = await this.queryLLM(prompt); //uncomment to query LLM
-        console.log("Received SMT-LIB Constraints:", constraints);
 
-        // Check if constraints were returned
-        if (constraints) {
-            // Solve constraints
-            const validPosition = await this.solveSMTLibConstraints(constraints);
-
-            if (validPosition) {
-                console.log("Valid Position:", validPosition);
-
-                // Place the object at the valid position
-                this.structuresLayer.putTileAt(58, validPosition.gen_x, validPosition.gen_y); //58 for wheelbarrow, 95 for beehive
-            } else {
-                console.warn("No valid position for the object was found.");
-            }
-        } else {
-            console.error("Failed to generate constraints from LLM.");
-        }
+        this.applyMapChanges(changes, tileSymbols);
     }
 }
 
